@@ -79,7 +79,7 @@ function App() {
             className="motivational-message"
           >
             <img
-              src={`${import.meta.env.BASE_URL}productive.jpg`}
+              src="/productive.jpg"
               alt="Motivational"
               className="motivational-image"
             />
@@ -91,7 +91,7 @@ function App() {
       <div className="task-manager-container">
         <h1>
           <img
-            src={`${import.meta.env.BASE_URL}leaf.png`}
+            src="/leaf.png"
             alt="Leaf Icon"
             className="leaf-image"
           />
