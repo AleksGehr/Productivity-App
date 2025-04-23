@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import { FaTrashAlt } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { useWindowSize } from '@react-hook/window-size';
+
 import WeekCalendar from './WeekCalendar';
+import Header from './components/Header';
+import InputGroup from './components/InputGroup';
+import TaskList from './components/TaskList';
+import MotivationalOverlay from './components/MotivationalOverlay';
+import { useTasksByDate } from './hooks/useTasksByDate';
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [tasksByDate, setTasksByDate] = useState({});
   const [newTask, setNewTask] = useState('');
   const [hasCelebrated, setHasCelebrated] = useState(false);
   const isFirstRender = useRef(true);
@@ -16,104 +19,56 @@ function App() {
 
   const dateKey = selectedDate.toISOString().split('T')[0];
 
-  // Load from localStorage
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('tasksByDate')) || {};
-    setTasksByDate(saved);
-  }, []);
+  const {
+    tasksByDate,
+    addTask,
+    toggleComplete,
+    deleteTask,
+    celebratedDates,
+    markCelebrated
+  } = useTasksByDate(dateKey);
 
-  // Save to localStorage & trigger celebration
+  const todayTasks = tasksByDate[dateKey] || [];
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
 
-    localStorage.setItem('tasksByDate', JSON.stringify(tasksByDate));
-
-    const todayTasks = tasksByDate[dateKey] || [];
     const total = todayTasks.length;
     const completed = todayTasks.filter(t => t.completed).length;
 
-    if (total > 0 && completed / total >= 0.7 && !hasCelebrated) {
+    if (total > 0 && completed / total >= 0.7 && !celebratedDates[dateKey]) {
       setHasCelebrated(true);
-      setTimeout(() => setHasCelebrated(false), 10000);
+      markCelebrated();
+      setTimeout(() => setHasCelebrated(false), 5000);
     }
-  }, [tasksByDate, dateKey]);
+  }, [todayTasks, dateKey, celebratedDates, markCelebrated]);
 
-  const addTask = () => {
+  const handleAddTask = () => {
     if (!newTask.trim()) return;
-    const newEntry = { id: Date.now(), text: newTask, completed: false };
-    setTasksByDate(prev => ({
-      ...prev,
-      [dateKey]: [...(prev[dateKey] || []), newEntry]
-    }));
+    addTask(newTask);
     setNewTask('');
   };
-
-  const toggleComplete = (id) => {
-    const updated = tasksByDate[dateKey].map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    );
-    setTasksByDate(prev => ({ ...prev, [dateKey]: updated }));
-  };
-
-  const deleteTask = (id) => {
-    const updated = tasksByDate[dateKey].filter(task => task.id !== id);
-    setTasksByDate(prev => ({ ...prev, [dateKey]: updated }));
-  };
-
-  const todayTasks = tasksByDate[dateKey] || [];
 
   return (
     <div className="app-wrapper">
       {hasCelebrated && <Confetti width={width} height={height} />}
-      
-      {hasCelebrated && (
-        <div className="motivational-overlay">
-          <motion.div
-            initial={{ opacity: 0, scale: 1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="motivational-message"
-          >
-            <img
-              src="/productive.jpg"
-              alt="Motivational"
-              className="motivational-image"
-            />
-            <p>🎉 You’ve been super productive today!<br />I’m proud of you!</p>
-          </motion.div>
-        </div>
-      )}
+      {hasCelebrated && <MotivationalOverlay />}
 
       <div className="task-manager-container">
-        <h1>
-          <img
-            src="/leaf.png"
-            alt="Leaf Icon"
-            className="leaf-image"
-          />
-          My Tasks
-        </h1>
+        <Header />
 
         <div className="week-wrapper">
-          <WeekCalendar
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-          />
+          <WeekCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
         </div>
 
-        <div className="input-group">
-          <input
-            type="text"
-            placeholder="Enter a task..."
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-          />
-          <button onClick={addTask}>Add</button>
-        </div>
+        <InputGroup
+          newTask={newTask}
+          setNewTask={setNewTask}
+          onAddTask={handleAddTask}
+        />
 
         {todayTasks.length > 0 &&
           todayTasks.filter(t => t.completed).length / todayTasks.length >= 0.7 && (
@@ -122,36 +77,11 @@ function App() {
             </div>
           )}
 
-        <ul className="task-list">
-          <AnimatePresence>
-            {[...todayTasks]
-              .sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1))
-              .map((task) => (
-                <motion.li
-                  key={task.id}
-                  className={task.completed ? 'completed' : ''}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="task-item">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => toggleComplete(task.id)}
-                    />
-                    <span className="custom-checkbox"></span>
-                    <span className="task-text">{task.text}</span>
-                  </div>
-                  <button className="delete-btn" onClick={() => deleteTask(task.id)}>
-                    <FaTrashAlt />
-                  </button>
-                </motion.li>
-              ))}
-          </AnimatePresence>
-        </ul>
+        <TaskList
+          tasks={todayTasks}
+          onToggle={toggleComplete}
+          onDelete={deleteTask}
+        />
       </div>
     </div>
   );
