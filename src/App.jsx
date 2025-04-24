@@ -3,7 +3,7 @@ import './App.css';
 import Confetti from 'react-confetti';
 import { useWindowSize } from '@react-hook/window-size';
 
-import WeekCalendar from './WeekCalendar';
+import WeekCalendar from './components/WeekCalendar';
 import Header from './components/Header';
 import InputGroup from './components/InputGroup';
 import TaskList from './components/TaskList';
@@ -17,7 +17,15 @@ function App() {
   const isFirstRender = useRef(true);
   const [width, height] = useWindowSize();
 
-  const dateKey = selectedDate.toISOString().split('T')[0];
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  const dateKey = formatDate(selectedDate);
 
   const {
     tasksByDate,

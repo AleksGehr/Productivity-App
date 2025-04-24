@@ -4,7 +4,7 @@ import { FaTrashAlt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { useWindowSize } from '@react-hook/window-size';
-import WeekCalendar from '../WeekCalendar';
+import WeekCalendar from '../components/WeekCalendar';
 
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
