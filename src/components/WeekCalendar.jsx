@@ -6,7 +6,7 @@ import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from 'react-icons/md';
 const WeekCalendar = ({ selectedDate, onDateSelect }) => {
   const [weekDates, setWeekDates] = useState([]);
   const [startOfWeek, setStartOfWeek] = useState(null);
-  const [animationDirection, setAnimationDirection] = useState(0);
+  const [animationKey, setAnimationKey] = useState('');
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -24,42 +24,41 @@ const WeekCalendar = ({ selectedDate, onDateSelect }) => {
         return d;
       });
       setWeekDates(week);
+      setAnimationKey(week.map(d => d.toISOString()).join('-')); // unique key for animation
     }
   }, [startOfWeek]);
 
   const getStartOfWeek = (date) => {
     const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Monday
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
     const monday = new Date(date.setDate(diff));
     return new Date(monday.setHours(0, 0, 0, 0));
   };
 
-  const changeWeek = (direction) => {
-    setAnimationDirection(direction);
+  const changeWeek = (dir) => {
     const newStart = new Date(startOfWeek);
-    newStart.setDate(startOfWeek.getDate() + direction * 7);
+    newStart.setDate(startOfWeek.getDate() + dir * 7);
     setStartOfWeek(newStart);
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('sv-SE'); 
+    return date.toLocaleDateString('sv-SE'); // fixes timezone issue
   };
 
   return (
     <div className="week-calendar-row">
       <button className="nav-btn" onClick={() => changeWeek(-1)}>
-  <MdKeyboardArrowLeft />
-</button>
+        <MdKeyboardArrowLeft />
+      </button>
 
-      <AnimatePresence initial={false} custom={animationDirection}>
+      <AnimatePresence mode="wait">
         <motion.div
-          key={formatDate(weekDates[0] || new Date())}
+          key={animationKey}
           className="week-calendar"
-          custom={animationDirection}
-          initial={{ x: animationDirection > 0 ? 100 : -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: animationDirection > 0 ? -100 : 100, opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          transition={{ duration: 0.10, ease: 'easeOut' }}
         >
           {weekDates.map((date, index) => {
             const isToday = formatDate(date) === formatDate(new Date());
@@ -81,8 +80,8 @@ const WeekCalendar = ({ selectedDate, onDateSelect }) => {
       </AnimatePresence>
 
       <button className="nav-btn" onClick={() => changeWeek(1)}>
-  <MdKeyboardArrowRight />
-</button>
+        <MdKeyboardArrowRight />
+      </button>
     </div>
   );
 };

@@ -1,52 +1,84 @@
 import { useState, useEffect } from 'react';
+import { db } from '../firebase';
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  onSnapshot
+} from 'firebase/firestore';
 
 export const useTasksByDate = (dateKey) => {
-  const [tasksByDate, setTasksByDate] = useState({});
-  const [celebratedDates, setCelebratedDates] = useState({});
+  const [tasks, setTasks] = useState([]);
+  const [celebrated, setCelebrated] = useState(false);
 
+  const tasksRef = doc(db, 'tasksByDate', dateKey);
+  const celebrationRef = doc(db, 'celebratedDates', dateKey);
+
+  // 🔄 Load tasks in real-time
   useEffect(() => {
-    const savedTasks = JSON.parse(localStorage.getItem('tasksByDate')) || {};
-    const savedCelebrated = JSON.parse(localStorage.getItem('celebratedDates')) || {};
-    setTasksByDate(savedTasks);
-    setCelebratedDates(savedCelebrated);
-  }, []);
+    const unsub = onSnapshot(tasksRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setTasks(docSnap.data().tasks || []);
+      } else {
+        setTasks([]);
+      }
+    });
 
+    return () => unsub();
+  }, [dateKey]);
+
+  // 🎉 Check celebration status
   useEffect(() => {
-    localStorage.setItem('tasksByDate', JSON.stringify(tasksByDate));
-  }, [tasksByDate]);
+    getDoc(celebrationRef).then((docSnap) => {
+      if (docSnap.exists()) {
+        setCelebrated(!!docSnap.data().celebrated);
+      } else {
+        setCelebrated(false);
+      }
+    });
+  }, [dateKey]);
 
-  const addTask = (text) => {
-    const newEntry = { id: Date.now(), text, completed: false };
-    setTasksByDate(prev => ({
-      ...prev,
-      [dateKey]: [...(prev[dateKey] || []), newEntry]
-    }));
+  // ➕ Add task
+  const addTask = async (text) => {
+    const newTask = {
+      id: Date.now(),
+      text,
+      completed: false
+    };
+
+    await setDoc(tasksRef, { tasks: arrayUnion(newTask) }, { merge: true });
   };
 
-  const toggleComplete = (id) => {
-    const updated = tasksByDate[dateKey].map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
+  // ✅ Toggle completion
+  const toggleComplete = async (id) => {
+    const updated = tasks.map(t =>
+      t.id === id ? { ...t, completed: !t.completed } : t
     );
-    setTasksByDate(prev => ({ ...prev, [dateKey]: updated }));
+    await setDoc(tasksRef, { tasks: updated });
   };
 
-  const deleteTask = (id) => {
-    const updated = tasksByDate[dateKey].filter(task => task.id !== id);
-    setTasksByDate(prev => ({ ...prev, [dateKey]: updated }));
+  // ❌ Delete task
+  const deleteTask = async (id) => {
+    const updated = tasks.filter(t => t.id !== id);
+    await setDoc(tasksRef, { tasks: updated });
   };
 
-  const markCelebrated = () => {
-    const updated = { ...celebratedDates, [dateKey]: true };
-    setCelebratedDates(updated);
-    localStorage.setItem('celebratedDates', JSON.stringify(updated));
+  // 🎉 Mark as celebrated
+  const markCelebrated = async () => {
+    await setDoc(celebrationRef, { celebrated: true });
+    setCelebrated(true);
   };
 
   return {
-    tasksByDate,
+    tasks,
     addTask,
     toggleComplete,
     deleteTask,
-    celebratedDates,
-    markCelebrated
+    celebrated,
+    markCelebrated,
   };
 };

@@ -45,6 +45,15 @@
   gap: 4px;
   justify-content: center;
   min-width: 0;
+  transition: transform 0.3s ease; /* Add smooth sliding effect */
+}
+
+.week-calendar.slide-left {
+  transform: translateX(-100%); /* Slide left */
+}
+
+.week-calendar.slide-right {
+  transform: translateX(100%); /* Slide right */
 }
 
 .day {
