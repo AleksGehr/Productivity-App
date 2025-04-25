@@ -11,7 +11,9 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  setDoc,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -25,22 +27,58 @@ const TaskPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newTask, setNewTask] = useState('');
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [hasCelebrated, setHasCelebrated] = useState(false);
-  const isFirstRender = useRef(true);
   const [width, height] = useWindowSize();
+  const isFirstRender = useRef(true);
 
-  const formatDate = (date) => date.toISOString().split('T')[0];
+  const formatDate = (date) => {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return local.toISOString().split('T')[0];
+  };
   const dateKey = formatDate(selectedDate);
 
-  // Load tasks from Firestore
+  // Celebration helpers using Firestore
+  const getCelebrationStatus = async (dateKey) => {
+    const docRef = doc(db, 'celebrations', dateKey);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists();
+  };
+
+  const setCelebrationStatus = async (dateKey) => {
+    const docRef = doc(db, 'celebrations', dateKey);
+    await setDoc(docRef, { celebrated: true });
+  };
+
+  // Load tasks from Firestore and handle celebration check
   const loadTasks = async () => {
-    const q = query(collection(db, 'tasks'), where('date', '==', dateKey));
-    const querySnapshot = await getDocs(q);
-    const loaded = [];
-    querySnapshot.forEach((doc) => {
-      loaded.push({ id: doc.id, ...doc.data() });
-    });
-    setTasks(loaded);
+    setLoading(true);
+    try {
+      const q = query(collection(db, 'tasks'), where('date', '==', dateKey));
+      const querySnapshot = await getDocs(q);
+      const loaded = [];
+      querySnapshot.forEach((doc) => {
+        loaded.push({ id: doc.id, ...doc.data() });
+      });
+      setTasks(loaded);
+
+      // 🎯 Check celebration AFTER loading tasks
+      const total = loaded.length;
+      const completed = loaded.filter(t => t.completed).length;
+      const alreadyCelebrated = await getCelebrationStatus(dateKey);
+
+      if (total > 0 && completed / total >= 0.7 && !alreadyCelebrated) {
+        setHasCelebrated(true);
+        await setCelebrationStatus(dateKey);
+
+        setTimeout(() => setHasCelebrated(false), 5000);
+      }
+
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -69,21 +107,6 @@ const TaskPage = () => {
     loadTasks();
   };
 
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.completed).length;
-
-    if (total > 0 && completed / total >= 0.7) {
-      setHasCelebrated(true);
-      setTimeout(() => setHasCelebrated(false), 5000);
-    }
-  }, [tasks]);
-
   return (
     <div className="app-wrapper">
       {hasCelebrated && <Confetti width={width} height={height} />}
@@ -96,21 +119,28 @@ const TaskPage = () => {
         </div>
         <InputGroup newTask={newTask} setNewTask={setNewTask} onAddTask={handleAddTask} />
 
-        {tasks.length > 0 &&
-          tasks.filter(t => t.completed).length / tasks.length >= 0.7 && (
-            <div className="celebration-inline">
-              <p>🎉 You are very productive today!</p>
-            </div>
-          )}
+        {loading ? (
+          <p>Loading tasks...</p>
+        ) : tasks.length === 0 ? (
+          <p>No tasks for today yet! Add one ✨</p>
+        ) : (
+          <>
+            {tasks.filter(t => t.completed).length / tasks.length >= 0.7 && (
+              <div className="celebration-inline">
+                <p>🎉 You are very productive today!</p>
+              </div>
+            )}
 
-        <TaskList
-          tasks={tasks}
-          onToggle={(id) => {
-            const task = tasks.find(t => t.id === id);
-            handleToggle(id, task.completed);
-          }}
-          onDelete={handleDelete}
-        />
+            <TaskList
+              tasks={tasks}
+              onToggle={(id) => {
+                const task = tasks.find(t => t.id === id);
+                handleToggle(id, task.completed);
+              }}
+              onDelete={handleDelete}
+            />
+          </>
+        )}
 
         <Link to="/habits" className="nav-link">Go to Habits</Link>
       </div>
