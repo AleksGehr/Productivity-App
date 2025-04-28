@@ -261,6 +261,7 @@ html, body {
 
 .calendar-weekday {
   text-align: center;
+  font-size: 14px;
 }
 
 .calendar-grid {
