@@ -13,15 +13,28 @@ import {
   arrayUnion,
   onSnapshot
 } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth'; // 👈 important
 
 export const useTasksByDate = (dateKey) => {
   const [tasks, setTasks] = useState([]);
   const [celebrated, setCelebrated] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   const tasksRef = doc(db, 'tasksByDate', dateKey);
   const celebrationCollection = collection(db, 'celebratedDates');
-  const user = auth.currentUser;
-  const userId = user ? user.uid : null;
+
+  // 👇 Correct way to detect when user is ready
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const unsub = onSnapshot(tasksRef, (docSnap) => {
@@ -49,7 +62,9 @@ export const useTasksByDate = (dateKey) => {
       setCelebrated(!querySnapshot.empty);
     };
 
-    loadCelebration();
+    if (userId) {
+      loadCelebration();
+    }
   }, [dateKey, userId]);
 
   const addTask = async (text) => {
