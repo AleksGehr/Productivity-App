@@ -1,0 +1,84 @@
+* {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+/* 🌿 Login Container */
+.login-container {
+    flex: 1;
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2);
+    animation: fadeIn 0.6s ease-out;
+    color: white;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* ✨ Fade-in Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 📝 Inputs */
+.login-container input {
+    font-family: 'Quicksand', 'Rubik', 'Noto Sans', sans-serif;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.95);
+    color: #2f4f4f;
+    box-sizing: border-box;
+}
+
+/* 🎯 Buttons */
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: linear-gradient(135deg, #a8e063, #56ab2f);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login-container button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(86, 171, 47, 0.3);
+}
+
+/* 🛑 Error text */
+.login-container p {
+    margin-top: 10px;
+    color: #ffffff;
+    font-size: 1.2rem;
+}
+
+/* 📱 Responsive */
+@media screen and (max-width: 768px) {
+    .login-container {
+      padding: 16px;
+      border-radius: 8px;
+    }
+
+
+}
+
+
+  

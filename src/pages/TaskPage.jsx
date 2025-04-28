@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import './TaskPage.css';
 import Confetti from 'react-confetti';
 import { useWindowSize } from '@react-hook/window-size';
-import { Link } from 'react-router-dom';
 import {
   collection,
   query,
@@ -11,24 +10,26 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  updateDoc,
-  setDoc,
-  getDoc
+  updateDoc
 } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 
 import WeekCalendar from '../components/WeekCalendar';
 import Header from '../components/Header';
 import InputGroup from '../components/InputGroup';
 import TaskList from '../components/TaskList';
 import MotivationalOverlay from '../components/MotivationalOverlay';
+import FooterNav from '../components/FooterNav';
+
+import { useCelebrations } from '../hooks/useCelebrations';
 
 const TaskPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newTask, setNewTask] = useState('');
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [hasCelebrated, setHasCelebrated] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+
   const [width, height] = useWindowSize();
   const isFirstRender = useRef(true);
 
@@ -38,41 +39,25 @@ const TaskPage = () => {
   };
   const dateKey = formatDate(selectedDate);
 
-  // Celebration helpers using Firestore
-  const getCelebrationStatus = async (dateKey) => {
-    const docRef = doc(db, 'celebrations', dateKey);
-    const docSnap = await getDoc(docRef);
-    return docSnap.exists();
-  };
+  const { hasCelebrated, markCelebrated, loadingCelebration } = useCelebrations(dateKey);
 
-  const setCelebrationStatus = async (dateKey) => {
-    const docRef = doc(db, 'celebrations', dateKey);
-    await setDoc(docRef, { celebrated: true });
-  };
-
-  // Load tasks from Firestore and handle celebration check
   const loadTasks = async () => {
     setLoading(true);
     try {
-      const q = query(collection(db, 'tasks'), where('date', '==', dateKey));
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const q = query(
+        collection(db, 'tasks'),
+        where('date', '==', dateKey),
+        where('userId', '==', user.uid)
+      );
       const querySnapshot = await getDocs(q);
-      const loaded = [];
+      const loadedTasks = [];
       querySnapshot.forEach((doc) => {
-        loaded.push({ id: doc.id, ...doc.data() });
+        loadedTasks.push({ id: doc.id, ...doc.data() });
       });
-      setTasks(loaded);
-
-      // 🎯 Check celebration AFTER loading tasks
-      const total = loaded.length;
-      const completed = loaded.filter(t => t.completed).length;
-      const alreadyCelebrated = await getCelebrationStatus(dateKey);
-
-      if (total > 0 && completed / total >= 0.7 && !alreadyCelebrated) {
-        setHasCelebrated(true);
-        await setCelebrationStatus(dateKey);
-
-        setTimeout(() => setHasCelebrated(false), 5000);
-      }
+      setTasks(loadedTasks);
 
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -81,16 +66,40 @@ const TaskPage = () => {
     }
   };
 
+  const checkAndCelebrate = async (loadedTasks) => {
+    const total = loadedTasks.length;
+    const completed = loadedTasks.filter(t => t.completed).length;
+
+    if (!loadingCelebration && total > 0 && completed / total >= 0.7 && !hasCelebrated) {
+      setShowConfetti(true);
+      await markCelebrated();
+      setTimeout(() => setShowConfetti(false), 5000);
+    }
+  };
+
   useEffect(() => {
-    loadTasks();
+    if (!isFirstRender.current) {
+      loadTasks();
+    }
+    isFirstRender.current = false;
   }, [dateKey]);
+
+  useEffect(() => {
+    if (!loading && !loadingCelebration) {
+      checkAndCelebrate(tasks);
+    }
+  }, [tasks, loading, loadingCelebration]);
 
   const handleAddTask = async () => {
     if (!newTask.trim()) return;
+    const user = auth.currentUser;
+    if (!user) return;
+
     await addDoc(collection(db, 'tasks'), {
       text: newTask,
       completed: false,
-      date: dateKey
+      date: dateKey,
+      userId: user.uid
     });
     setNewTask('');
     loadTasks();
@@ -108,42 +117,44 @@ const TaskPage = () => {
   };
 
   return (
-    <div className="app-wrapper">
-      {hasCelebrated && <Confetti width={width} height={height} />}
-      {hasCelebrated && <MotivationalOverlay />}
+    <div className="page-container">
+      <div className="content-wrap">
+        {showConfetti && <Confetti width={width} height={height} />}
+        {showConfetti && <MotivationalOverlay />}
 
-      <div className="task-manager-container">
-        <Header />
-        <div className="week-wrapper">
-          <WeekCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+        <div className="task-manager-container">
+          <Header />
+          <div className="week-wrapper">
+            <WeekCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+          </div>
+          <InputGroup newTask={newTask} setNewTask={setNewTask} onAddTask={handleAddTask} />
+
+          {loading ? (
+            <p>Loading tasks...</p>
+          ) : tasks.length === 0 ? (
+            <p>No tasks for today yet! Add one ✨</p>
+          ) : (
+            <>
+              {tasks.filter(t => t.completed).length / tasks.length >= 0.7 && (
+                <div className="celebration-inline">
+                  <p>🎉 You are very productive today!</p>
+                </div>
+              )}
+
+              <TaskList
+                tasks={tasks}
+                onToggle={(id) => {
+                  const task = tasks.find(t => t.id === id);
+                  handleToggle(id, task.completed);
+                }}
+                onDelete={handleDelete}
+              />
+            </>
+          )}
         </div>
-        <InputGroup newTask={newTask} setNewTask={setNewTask} onAddTask={handleAddTask} />
-
-        {loading ? (
-          <p>Loading tasks...</p>
-        ) : tasks.length === 0 ? (
-          <p>No tasks for today yet! Add one ✨</p>
-        ) : (
-          <>
-            {tasks.filter(t => t.completed).length / tasks.length >= 0.7 && (
-              <div className="celebration-inline">
-                <p>🎉 You are very productive today!</p>
-              </div>
-            )}
-
-            <TaskList
-              tasks={tasks}
-              onToggle={(id) => {
-                const task = tasks.find(t => t.id === id);
-                handleToggle(id, task.completed);
-              }}
-              onDelete={handleDelete}
-            />
-          </>
-        )}
-
-        <Link to="/habits" className="nav-link">Go to Habits</Link>
       </div>
+
+      <FooterNav />
     </div>
   );
 };

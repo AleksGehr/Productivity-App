@@ -1,143 +1,318 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
 
-/* 🌿 Habit Tracker Layout */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 🌿 Background and base layout */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Quicksand', 'Rubik', 'Noto Sans', sans-serif;
+  background: url('/leafs.jpg') no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  width: 100%;
+  color: #2f4f4f;
+  overflow-x: hidden;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🧊 Habit Tracker Container */
 .habit-tracker-container {
-    backdrop-filter: blur(15px);
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    padding: 20px;
-    width: 100%;
-    max-width: 700px;
-    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2);
-    text-align: center;
-    animation: fadeIn 0.6s ease-out;
-    color: white;
-  }
-  
-  /* ✨ Fade-in animation */
+  flex: 1;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2);
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* ✨ Fade-in animation */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  
-  /* Input section */
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 🌱 Inputs */
 .input-group {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    margin-right: 10px;
-    margin-left: 10px;
-  }
-  
-  .input-group input {
-    flex: 1;
-    padding: 8px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    outline: none;
-    background: rgba(255, 255, 255, 0.95);
-    color: #2f4f4f;
-    box-sizing: border-box;
-  }
-  
-  .input-group button {
-    padding: 8px;
-    background: linear-gradient(135deg, #a8e063, #56ab2f);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .input-group button:hover {
-    transform: scale(1.03);
-    box-shadow: 0 0 10px rgba(86, 171, 47, 0.3);
-  }
-  
-  /* 🧩 Habit Cards */
-  .habits-container {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    margin-top: 20px;
-  }
-  
-  .habit-card {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+  display: flex;
+  gap: 12px;
+  margin: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2f4f4f;
+  box-sizing: border-box;
+}
+
+.input-group button {
+  padding: 8px;
+  background: linear-gradient(135deg, #a8e063, #56ab2f);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.input-group button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 10px rgba(86, 171, 47, 0.3);
+}
+
+/* 🌿 Habit list and cards */
+.habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.habit-card {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.habit-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: white;
+}
+
+/* 📅 New Days Checkboxes */
+.days-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.day-checkbox {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+  height: 50px;
+  position: relative;
+}
+
+
+.day-checkbox span {
+  color: white;
+  font-size: 12px;
+  padding-top: 10px;
+}
+
+/* Highlight checked day */
+.day-checkbox input[type="checkbox"]:checked + span {
+  font-weight: bold;
+}
+
+.month-name {
+  font-family: 'Quicksand', 'Rubik', 'Noto Sans', sans-serif;
+  font-size: 1.2rem;
+  color: #ffffff;
+}
+
+.custom-habit-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+}
+
+.custom-habit-checkbox input {
+  opacity: 0;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.checkmark {
+  width: 22px;
+  height: 22px;
+  background-color: rgba(255, 255, 255, 0.1); /* ✅ empty checkbox background */
+  border: 2px solid #56ab2f;
+  border-radius: 5px;
+  display: inline-block;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* When checked */
+.custom-habit-checkbox input:checked + .checkmark {
+  background-color: #56ab2f; /* ✅ green background */
+  border-color: #56ab2f;
+}
+
+/* White checkmark */
+.custom-habit-checkbox input:checked + .checkmark::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.delete-habit-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.2rem;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-habit-btn:hover {
+  color: #ff4d4d; /* Soft red on hover */
+  transform: scale(1.2);
+}
+
+.habit-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background: rgba(255, 255, 255, 0.5);
+  color: white;
+  font-family: 'Quicksand', 'Rubik', 'Noto Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #a8e063, #56ab2f);
+}
+
+.delete-btn-tab {
+  background: none;
+  border: none;
+  margin-left: 8px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 5px;
+  color: #ffffff;
+}
+
+.calendar-weekday {
+  text-align: center;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.calendar-cell {
+  padding-top: 6px;
+  height: 42px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.day-number {
+  font-size: 12px;
+  color: white;
+  position: relative;
+  top: -5px;
+}
+
+.empty-cell {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* 📱 Responsive design */
+@media screen and (max-width: 768px) {
+  .habit-tracker-container {
     padding: 16px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
   }
-  
-  .habit-card h2 {
-    font-size: 1.4rem;
-    margin-bottom: 10px;
-    color: white;
+
+  .input-group input {
+    font-size: 16px;
+    padding: 10px;
   }
-  
-  /* 📅 Habit Grid */
-  .habit-days {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    justify-content: center;
-    margin-top: 10px;
+
+  .input-group button {
+    font-size: 16px;
+    padding: 10px 16px;
   }
-  
-  .habit-day {
-    width: 16px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s ease;
+
+  .habit-title {
+    font-size: 1.2rem;
   }
-  
-  .habit-day.checked {
-    background: linear-gradient(135deg, #56ab2f, #a8e063);
-  }
-  
-  /* 🔙 Navigation */
-  .nav-link {
-    display: inline-block;
-    margin-top: 20px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #ffffff;
-    transition: color 0.2s ease;
-  }
-  
-  .nav-link:hover {
-    color: #a8e063;
-  }
-  
-  /* ✨ Animation */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* 📱 Responsive */
-  @media screen and (max-width: 768px) {
-    .habit-tracker-container {
-      max-width: 95vw;
-      padding: 16px;
-      border-radius: 8px;
-    }
-  
-    .habit-card h2 {
-      font-size: 1.2rem;
-    }
-  
-    .habit-day {
-      width: 14px;
-      height: 14px;
-    }
-  }
+
+}
+
