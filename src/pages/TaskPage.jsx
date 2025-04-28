@@ -13,6 +13,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth'; // 👈 important new import!
 
 import WeekCalendar from '../components/WeekCalendar';
 import Header from '../components/Header';
@@ -29,6 +30,7 @@ const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [userId, setUserId] = useState(null); // 👈 new
 
   const [width, height] = useWindowSize();
   const isFirstRender = useRef(true);
@@ -41,16 +43,31 @@ const TaskPage = () => {
 
   const { hasCelebrated, markCelebrated, loadingCelebration } = useCelebrations(dateKey);
 
+  // ✅ Listen for auth status properly
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   const loadTasks = async () => {
     setLoading(true);
     try {
-      const user = auth.currentUser;
-      if (!user) return;
+      if (!userId) {
+        setTasks([]);
+        return;
+      }
 
       const q = query(
         collection(db, 'tasks'),
         where('date', '==', dateKey),
-        where('userId', '==', user.uid)
+        where('userId', '==', userId)
       );
       const querySnapshot = await getDocs(q);
       const loadedTasks = [];
@@ -62,7 +79,7 @@ const TaskPage = () => {
     } catch (error) {
       console.error('Error fetching tasks:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // ✅ Always clear loading
     }
   };
 
@@ -82,7 +99,7 @@ const TaskPage = () => {
       loadTasks();
     }
     isFirstRender.current = false;
-  }, [dateKey]);
+  }, [dateKey, userId]); // 👈 also react to userId ready
 
   useEffect(() => {
     if (!loading && !loadingCelebration) {
@@ -91,15 +108,13 @@ const TaskPage = () => {
   }, [tasks, loading, loadingCelebration]);
 
   const handleAddTask = async () => {
-    if (!newTask.trim()) return;
-    const user = auth.currentUser;
-    if (!user) return;
+    if (!newTask.trim() || !userId) return;
 
     await addDoc(collection(db, 'tasks'), {
       text: newTask,
       completed: false,
       date: dateKey,
-      userId: user.uid
+      userId: userId
     });
     setNewTask('');
     loadTasks();
