@@ -153,7 +153,7 @@ const HabitPage = () => {
                             onChange={() => toggleHabitDay(selectedHabit.id, dateObj.fullDate)}
                           />
                           <span className="checkmark"></span>
-                          <span className="day-number">{dateObj.dayNumber}</span>
+                          <span className="day-number-habits">{dateObj.dayNumber}</span>
                         </label>
                       ) : (
                         <div className="empty-cell"></div>
