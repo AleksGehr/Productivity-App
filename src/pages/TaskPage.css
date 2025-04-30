@@ -202,17 +202,20 @@ h1 {
   color: #c7eacb;
 }
 
-/* Delete button */
-.delete-btn {
+
+.settings-btn {
   background: none;
   border: none;
   font-size: 17px;
   cursor: pointer;
   color: #f0f0f0;
   transition: transform 0.2s ease, color 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.delete-btn:hover {
+.settings-btnn:hover {
   transform: scale(1.1);
   color: #ffffff;
 }
@@ -282,6 +285,45 @@ h1 {
   flex-direction: column;
 }
 
+.task-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.task-modal {
+  background: white;
+  padding: 20px 24px;
+  border-radius: 10px;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+  text-align: center;
+  z-index: 1001;
+  min-width: 170px;
+}
+
+.task-modal button {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.task-modal .cancel-btn {
+  background: transparent;
+  color: #666;
+}
 
 @media screen and (max-width: 768px) {
   .task-manager-container {

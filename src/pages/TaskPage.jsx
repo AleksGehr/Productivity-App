@@ -13,7 +13,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth'; // 👈 important new import!
+import { onAuthStateChanged } from 'firebase/auth';
 
 import WeekCalendar from '../components/WeekCalendar';
 import Header from '../components/Header';
@@ -21,7 +21,6 @@ import InputGroup from '../components/InputGroup';
 import TaskList from '../components/TaskList';
 import MotivationalOverlay from '../components/MotivationalOverlay';
 import FooterNav from '../components/FooterNav';
-
 import { useCelebrations } from '../hooks/useCelebrations';
 
 const TaskPage = () => {
@@ -30,7 +29,8 @@ const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
-  const [userId, setUserId] = useState(null); // 👈 new
+  const [userId, setUserId] = useState(null);
+  const [taskSettingsOpen, setTaskSettingsOpen] = useState(null);
 
   const [width, height] = useWindowSize();
   const isFirstRender = useRef(true);
@@ -43,7 +43,6 @@ const TaskPage = () => {
 
   const { hasCelebrated, markCelebrated, loadingCelebration } = useCelebrations(dateKey);
 
-  // ✅ Listen for auth status properly
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -75,11 +74,10 @@ const TaskPage = () => {
         loadedTasks.push({ id: doc.id, ...doc.data() });
       });
       setTasks(loadedTasks);
-
     } catch (error) {
       console.error('Error fetching tasks:', error);
     } finally {
-      setLoading(false); // ✅ Always clear loading
+      setLoading(false);
     }
   };
 
@@ -99,7 +97,7 @@ const TaskPage = () => {
       loadTasks();
     }
     isFirstRender.current = false;
-  }, [dateKey, userId]); // 👈 also react to userId ready
+  }, [dateKey, userId]);
 
   useEffect(() => {
     if (!loading && !loadingCelebration) {
@@ -129,13 +127,45 @@ const TaskPage = () => {
   const handleDelete = async (id) => {
     await deleteDoc(doc(db, 'tasks', id));
     loadTasks();
+    setTaskSettingsOpen(null);
   };
+
+  const handleMove = (task) => {
+    console.log('Move task:', task); // Optional: show calendar modal
+    setTaskSettingsOpen(null);
+  };
+
+  const handleCopy = async (task) => {
+    if (!userId) return;
+    await addDoc(collection(db, 'tasks'), {
+      text: task.text,
+      completed: false,
+      date: dateKey,
+      userId: userId
+    });
+    loadTasks();
+    setTaskSettingsOpen(null);
+  };
+
+  const closeTaskModal = () => setTaskSettingsOpen(null);
 
   return (
     <div className="page-container">
       <div className="content-wrap">
         {showConfetti && <Confetti width={width} height={height} />}
         {showConfetti && <MotivationalOverlay />}
+
+        {taskSettingsOpen && (
+          <div className="task-modal-overlay" onClick={closeTaskModal}>
+            <div className="task-modal" onClick={(e) => e.stopPropagation()}>
+              <h3>Task Options</h3>
+              <p>{taskSettingsOpen.text}</p>
+              <button onClick={() => handleMove(taskSettingsOpen)}>Move Task</button>
+              <button onClick={() => handleCopy(taskSettingsOpen)}>Copy Task</button>
+              <button onClick={() => handleDelete(taskSettingsOpen.id)}>Delete Task</button>
+            </div>
+          </div>
+        )}
 
         <div className="task-manager-container">
           <Header />
@@ -158,11 +188,15 @@ const TaskPage = () => {
 
               <TaskList
                 tasks={tasks}
+                dateKey={dateKey}
                 onToggle={(id) => {
                   const task = tasks.find(t => t.id === id);
                   handleToggle(id, task.completed);
                 }}
                 onDelete={handleDelete}
+                onMove={handleMove}
+                onCopy={handleCopy}
+                onOpenSettings={(task) => setTaskSettingsOpen(task)}
               />
             </>
           )}
