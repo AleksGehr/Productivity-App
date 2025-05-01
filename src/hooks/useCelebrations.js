@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const useCelebrations = (dateKey) => {
   const [hasCelebrated, setHasCelebrated] = useState(false);
   const [loadingCelebration, setLoadingCelebration] = useState(true);
+  const [userId, setUserId] = useState(null);
 
-  const user = auth.currentUser;
-  const userId = user ? user.uid : null;
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUserId(user?.uid || null);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (!userId || !dateKey) return;
