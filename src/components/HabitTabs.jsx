@@ -1,31 +1,36 @@
 import React from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
+import './HabitTabs.css'; // Optional: style the new layout cleanly
 
-const HabitTabs = ({ habits, selectedHabitId, setSelectedHabitId, deleteHabit }) => (
-  <div className="habit-tabs">
-    {[...habits]
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((habit) => (
-        <button
-          key={habit.id}
-          className={`tab-button ${habit.id === selectedHabitId ? 'active' : ''}`}
-          onClick={() => setSelectedHabitId(habit.id)}
-        >
-          {habit.name}
+const HabitTabs = ({ habits, selectedHabitId, setSelectedHabitId, deleteHabit }) => {
+  const sortedHabits = [...habits].sort((a, b) => a.name.localeCompare(b.name));
+
+  return (
+    <div className="habit-tabs">
+      {sortedHabits.map((habit) => (
+        <div key={habit.id} className="tab-container">
+          <button
+            className={`tab-button ${habit.id === selectedHabitId ? 'active' : ''}`}
+            onClick={() => setSelectedHabitId(habit.id)}
+          >
+            {habit.name}
+          </button>
           <button
             className="delete-btn-tab"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={() => {
               deleteHabit(habit.id);
-              if (habit.id === selectedHabitId) setSelectedHabitId(null);
+              if (habit.id === selectedHabitId) {
+                setSelectedHabitId(null);
+              }
             }}
             title="Delete habit"
           >
             <FaTrashAlt />
           </button>
-        </button>
+        </div>
       ))}
-  </div>
-);
+    </div>
+  );
+};
 
 export default HabitTabs;

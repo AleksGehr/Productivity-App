@@ -15,12 +15,14 @@ const TaskSettingsModal = ({ task, onClose, onMove, onCopy, onDelete, onEdit }) 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
+    if (!task) return;
+  
     setIsEditing(false);
     setIsCopying(false);
     setIsMoving(false);
-    setEditText(task?.text || '');
+    setEditText(task.text);
     setSelectedDate(new Date());
-  }, [task]);
+  }, [task?.id]);
 
   if (!task) return null;
 

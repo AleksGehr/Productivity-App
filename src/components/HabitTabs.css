@@ -1,0 +1,41 @@
+.habit-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    justify-content: center;
+  }
+  
+  .tab-container {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .tab-button {
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .tab-button.active {
+    background: linear-gradient(135deg, #a8e063, #56ab2f); 
+  }
+  
+  .delete-btn-tab {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  
+  .delete-btn-tab:hover {
+    transform: scale(1.1);
+  }
+  

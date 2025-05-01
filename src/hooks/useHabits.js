@@ -31,6 +31,9 @@ export const useHabits = () => {
       querySnapshot.forEach((doc) => {
         fetchedHabits.push({ id: doc.id, ...doc.data() });
       });
+    
+      // ✅ Sort alphabetically
+      fetchedHabits.sort((a, b) => a.name.localeCompare(b.name));
       setHabits(fetchedHabits);
     });
 
@@ -55,17 +58,34 @@ export const useHabits = () => {
 
   const toggleHabitDay = async (habitDocId, date) => {
     if (!userId) return;
-
+  
     const habitRef = doc(db, 'habits', habitDocId);
     const habitSnap = await getDoc(habitRef);
-
+  
     if (!habitSnap.exists()) return;
-
+  
     const habitData = habitSnap.data();
-    const updatedLog = { ...habitData.log, [date]: !habitData.log?.[date] };
-
+    const currentState = habitData.log?.[date] || false;
+    const updatedLog = { ...habitData.log, [date]: !currentState };
+  
+    // ✅ 1. Update the habit log
     await updateDoc(habitRef, { log: updatedLog });
+  
+    // ✅ 2. Update the matching task if it exists
+    const taskQuery = query(
+      collection(db, 'tasks'),
+      where('userId', '==', userId),
+      where('habitId', '==', habitDocId),
+      where('date', '==', date)
+    );
+  
+    const taskSnap = await getDocs(taskQuery);
+    taskSnap.forEach(async (docSnap) => {
+      const taskRef = doc(db, 'tasks', docSnap.id);
+      await updateDoc(taskRef, { completed: !currentState });
+    });
   };
+  
 
   const deleteHabit = async (habitDocId) => {
     if (!userId) return;

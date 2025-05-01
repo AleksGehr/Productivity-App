@@ -1,11 +1,11 @@
 // src/context/TaskContext.jsx
 import { createContext, useContext } from 'react';
-import { useTasksByDate } from '../hooks/useTasksByDate';
+import { useTasks } from '../hooks/useTasks';
 
 const TaskContext = createContext();
 
 export const TaskProvider = ({ children, dateKey }) => {
-  const value = useTasksByDate(dateKey);
+  const value = useTasks(dateKey);
   return (
     <TaskContext.Provider value={value}>
       {children}

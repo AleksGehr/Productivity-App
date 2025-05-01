@@ -1,19 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TaskPage.css';
 import Confetti from 'react-confetti';
 import { useWindowSize } from '@react-hook/window-size';
+import { auth, db } from '../firebase';
 import {
-  collection,
-  query,
-  where,
-  addDoc,
-  getDocs,
-  deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  addDoc,
+  deleteDoc,
+  collection
 } from 'firebase/firestore';
-import { db, auth } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 
 import WeekCalendar from '../components/WeekCalendar';
 import Header from '../components/Header';
@@ -23,18 +19,14 @@ import MotivationalOverlay from '../components/MotivationalOverlay';
 import FooterNav from '../components/FooterNav';
 import TaskSettingsModal from '../components/TaskSettingsModal';
 import { useCelebrations } from '../hooks/useCelebrations';
+import { useTasks } from '../hooks/useTasks';
 
 const TaskPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newTask, setNewTask] = useState('');
-  const [tasks, setTasks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [userId, setUserId] = useState(null);
   const [taskSettingsOpen, setTaskSettingsOpen] = useState(null);
-
+  const [showConfetti, setShowConfetti] = useState(false);
   const [width, height] = useWindowSize();
-  const isFirstRender = useRef(true);
 
   const formatDate = (date) => {
     const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -42,135 +34,67 @@ const TaskPage = () => {
   };
   const dateKey = formatDate(selectedDate);
 
+  const { tasks, addTask, toggleComplete } = useTasks(dateKey);
   const { hasCelebrated, markCelebrated, loadingCelebration } = useCelebrations(dateKey);
 
+  // 🎉 Trigger celebration if 70% of tasks completed
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const loadTasks = async () => {
-    setLoading(true);
-    try {
-      if (!userId) {
-        setTasks([]);
-        return;
-      }
-
-      const q = query(
-        collection(db, 'tasks'),
-        where('date', '==', dateKey),
-        where('userId', '==', userId)
-      );
-      const querySnapshot = await getDocs(q);
-      const loadedTasks = [];
-      querySnapshot.forEach((doc) => {
-        loadedTasks.push({ id: doc.id, ...doc.data() });
-      });
-      setTasks(loadedTasks);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const checkAndCelebrate = async (loadedTasks) => {
-    const total = loadedTasks.length;
-    const completed = loadedTasks.filter(t => t.completed).length;
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.completed).length;
 
     if (!loadingCelebration && total > 0 && completed / total >= 0.7 && !hasCelebrated) {
       setShowConfetti(true);
-      await markCelebrated();
+      markCelebrated();
       setTimeout(() => setShowConfetti(false), 5000);
     }
-  };
-
-  useEffect(() => {
-    if (!isFirstRender.current) {
-      loadTasks();
-    }
-    isFirstRender.current = false;
-  }, [dateKey, userId]);
-
-  useEffect(() => {
-    if (!loading && !loadingCelebration) {
-      checkAndCelebrate(tasks);
-    }
-  }, [tasks, loading, loadingCelebration]);
+  }, [tasks, loadingCelebration, hasCelebrated, markCelebrated]);
 
   const handleAddTask = async () => {
-    if (!newTask.trim() || !userId) return;
-
-    await addDoc(collection(db, 'tasks'), {
-      text: newTask,
-      completed: false,
-      date: dateKey,
-      userId: userId
-    });
+    if (!newTask.trim()) return;
+    await addTask(newTask.trim());
     setNewTask('');
-    loadTasks();
   };
 
-  const handleToggle = async (id, current) => {
-    const ref = doc(db, 'tasks', id);
-    await updateDoc(ref, { completed: !current });
-    loadTasks();
-  };
+  const handleEdit = async (task) => {
+    const newText = prompt('Edit task text:', task.text);
+    if (!newText || !newText.trim()) return;
 
-  const handleDelete = async (id) => {
-    await deleteDoc(doc(db, 'tasks', id));
-    loadTasks();
+    const taskRef = doc(db, 'tasks', task.id);
+    await updateDoc(taskRef, { text: newText.trim() });
     setTaskSettingsOpen(null);
   };
 
   const handleMove = async (task, newDate) => {
-    if (!userId || !newDate) return;
-  
+    if (!newDate) return;
     const formattedDate = new Date(newDate.getTime() - newDate.getTimezoneOffset() * 60000)
       .toISOString()
       .split('T')[0];
-  
-    const ref = doc(db, 'tasks', task.id);
-    await updateDoc(ref, { date: formattedDate });
-  
-    loadTasks();
+
+    const taskRef = doc(db, 'tasks', task.id);
+    await updateDoc(taskRef, { date: formattedDate });
     setTaskSettingsOpen(null);
   };
 
   const handleCopy = async (task, targetDate) => {
-    if (!userId || !targetDate) return;
-  
+    if (!targetDate) return;
     const formattedDate = new Date(targetDate.getTime() - targetDate.getTimezoneOffset() * 60000)
       .toISOString()
       .split('T')[0];
-  
+
     await addDoc(collection(db, 'tasks'), {
       text: task.text,
       completed: false,
       date: formattedDate,
-      userId: userId
+      userId: auth.currentUser.uid
     });
-  
-    loadTasks();
+
     setTaskSettingsOpen(null);
   };
 
-  const handleEdit = async (task) => {
-    const ref = doc(db, 'tasks', task.id);
-    await updateDoc(ref, { text: task.text });
-    loadTasks();
+  const deleteTask = async (id) => {
+    await deleteDoc(doc(db, 'tasks', id));
     setTaskSettingsOpen(null);
   };
-
-  const closeTaskModal = () => setTaskSettingsOpen(null);
 
   return (
     <div className="page-container">
@@ -180,10 +104,10 @@ const TaskPage = () => {
 
         <TaskSettingsModal
           task={taskSettingsOpen}
-          onClose={closeTaskModal}
+          onClose={() => setTaskSettingsOpen(null)}
           onMove={handleMove}
           onCopy={handleCopy}
-          onDelete={handleDelete}
+          onDelete={deleteTask}
           onEdit={handleEdit}
         />
 
@@ -192,11 +116,10 @@ const TaskPage = () => {
           <div className="week-wrapper">
             <WeekCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} />
           </div>
+
           <InputGroup newTask={newTask} setNewTask={setNewTask} onAddTask={handleAddTask} />
 
-          {loading ? (
-            <p>Loading tasks...</p>
-          ) : tasks.length === 0 ? (
+          {tasks.length === 0 ? (
             <p>No tasks for today yet! Add one ✨</p>
           ) : (
             <>
@@ -211,9 +134,9 @@ const TaskPage = () => {
                 dateKey={dateKey}
                 onToggle={(id) => {
                   const task = tasks.find(t => t.id === id);
-                  handleToggle(id, task.completed);
+                  toggleComplete(id);
                 }}
-                onDelete={handleDelete}
+                onDelete={deleteTask}
                 onMove={handleMove}
                 onCopy={handleCopy}
                 onOpenSettings={(task) => setTaskSettingsOpen(task)}
