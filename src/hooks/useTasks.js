@@ -20,7 +20,6 @@ export const useTasks = (dateKey) => {
   const tasksCollection = collection(db, 'tasks');
   const habitsCollection = collection(db, 'habits');
 
-  // 🔐 Auth
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setUserId(user ? user.uid : null);
@@ -28,7 +27,6 @@ export const useTasks = (dateKey) => {
     return () => unsub();
   }, []);
 
-  // 🔁 Subscribe to task changes
   useEffect(() => {
     if (!userId) return;
 
@@ -46,7 +44,6 @@ export const useTasks = (dateKey) => {
     return () => unsub();
   }, [userId, dateKey]);
 
-  // ✅ One-time: Create habit tasks for today if missing
   useEffect(() => {
     const generateHabitTasks = async () => {
       if (!userId) return;
@@ -84,7 +81,6 @@ export const useTasks = (dateKey) => {
     generateHabitTasks();
   }, [userId, dateKey]);
 
-  // ➕ Add
   const addTask = async (text) => {
     if (!userId || !text.trim()) return;
     await addDoc(tasksCollection, {
@@ -95,7 +91,6 @@ export const useTasks = (dateKey) => {
     });
   };
 
-  // ✅ Toggle + sync to habit
   const toggleComplete = async (id) => {
     const ref = doc(db, 'tasks', id);
     const snap = await getDoc(ref);
@@ -114,6 +109,7 @@ export const useTasks = (dateKey) => {
       }
     }
   };
+
 
   return {
     tasks,

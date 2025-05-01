@@ -56,12 +56,10 @@ const TaskPage = () => {
   };
 
   const handleEdit = async (task) => {
-    const newText = prompt('Edit task text:', task.text);
-    if (!newText || !newText.trim()) return;
-
-    const taskRef = doc(db, 'tasks', task.id);
-    await updateDoc(taskRef, { text: newText.trim() });
+    const ref = doc(db, 'tasks', task.id);
+    await updateDoc(ref, { text: task.text });
     setTaskSettingsOpen(null);
+    loadTasks();   
   };
 
   const handleMove = async (task, newDate) => {
