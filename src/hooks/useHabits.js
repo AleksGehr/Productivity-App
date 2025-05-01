@@ -39,14 +39,17 @@ export const useHabits = () => {
 
   const addHabit = async (name) => {
     if (!userId || !name.trim()) return;
-
+  
+    const today = new Date().toISOString().split('T')[0]; // e.g., "2025-04-30"
+  
     const newHabit = {
       internalId: Date.now(),
       name,
       log: {},
       userId: userId,
+      startDate: today, // ✅ Save start date
     };
-
+  
     await addDoc(habitsCollection, newHabit);
   };
 

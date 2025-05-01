@@ -21,6 +21,7 @@ import InputGroup from '../components/InputGroup';
 import TaskList from '../components/TaskList';
 import MotivationalOverlay from '../components/MotivationalOverlay';
 import FooterNav from '../components/FooterNav';
+import TaskSettingsModal from '../components/TaskSettingsModal';
 import { useCelebrations } from '../hooks/useCelebrations';
 
 const TaskPage = () => {
@@ -130,19 +131,41 @@ const TaskPage = () => {
     setTaskSettingsOpen(null);
   };
 
-  const handleMove = (task) => {
-    console.log('Move task:', task); // Optional: show calendar modal
+  const handleMove = async (task, newDate) => {
+    if (!userId || !newDate) return;
+  
+    const formattedDate = new Date(newDate.getTime() - newDate.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split('T')[0];
+  
+    const ref = doc(db, 'tasks', task.id);
+    await updateDoc(ref, { date: formattedDate });
+  
+    loadTasks();
     setTaskSettingsOpen(null);
   };
 
-  const handleCopy = async (task) => {
-    if (!userId) return;
+  const handleCopy = async (task, targetDate) => {
+    if (!userId || !targetDate) return;
+  
+    const formattedDate = new Date(targetDate.getTime() - targetDate.getTimezoneOffset() * 60000)
+      .toISOString()
+      .split('T')[0];
+  
     await addDoc(collection(db, 'tasks'), {
       text: task.text,
       completed: false,
-      date: dateKey,
+      date: formattedDate,
       userId: userId
     });
+  
+    loadTasks();
+    setTaskSettingsOpen(null);
+  };
+
+  const handleEdit = async (task) => {
+    const ref = doc(db, 'tasks', task.id);
+    await updateDoc(ref, { text: task.text });
     loadTasks();
     setTaskSettingsOpen(null);
   };
@@ -155,17 +178,14 @@ const TaskPage = () => {
         {showConfetti && <Confetti width={width} height={height} />}
         {showConfetti && <MotivationalOverlay />}
 
-        {taskSettingsOpen && (
-          <div className="task-modal-overlay" onClick={closeTaskModal}>
-            <div className="task-modal" onClick={(e) => e.stopPropagation()}>
-              <h3>Task Options</h3>
-              <p>{taskSettingsOpen.text}</p>
-              <button onClick={() => handleMove(taskSettingsOpen)}>Move Task</button>
-              <button onClick={() => handleCopy(taskSettingsOpen)}>Copy Task</button>
-              <button onClick={() => handleDelete(taskSettingsOpen.id)}>Delete Task</button>
-            </div>
-          </div>
-        )}
+        <TaskSettingsModal
+          task={taskSettingsOpen}
+          onClose={closeTaskModal}
+          onMove={handleMove}
+          onCopy={handleCopy}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+        />
 
         <div className="task-manager-container">
           <Header />

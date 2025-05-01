@@ -177,6 +177,12 @@ html, body {
   outline: none;
 }
 
+.nav-arrow.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+  cursor: default;
+}
+
 
 .custom-habit-checkbox {
   position: relative;
@@ -332,6 +338,7 @@ html, body {
   height: 100%;
   width: 100%;
 }
+
 
 
 /* 📱 Responsive design */

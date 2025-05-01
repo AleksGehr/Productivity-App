@@ -1,0 +1,162 @@
+h3 {
+    margin-top: 3px;
+}
+
+
+p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: 1.1rem;
+}
+
+.task-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .task-modal {
+    max-width: 300px;
+    color: white;
+    width: 90%;
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-height: 90vh; /* Make sure modal doesn’t overflow screen */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+  }
+  
+  .task-modal button {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    backdrop-filter: blur(5px);
+    background: transparent;
+    color: white;
+    
+  }
+
+  .task-modal .nav-btn {
+    background: transparent;
+    backdrop-filter: none;
+    color: white;
+  }
+  
+
+  .edit-task-input {
+    width: 90%;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+    background: transparent;
+    color: white;
+    margin-bottom: 10px;
+    border: none;
+  }
+
+  .edit-task-input:focus {
+    outline: none;
+    border: 2px solid #56ab2f;
+    box-shadow: 0 0 4px rgba(86, 171, 47, 0.4);
+  }
+
+  .react-datepicker {
+    display: inline-block !important;
+    width: auto;
+    border: none;
+    font-family: 'Quicksand', sans-serif;
+    background: transparent;
+    color: white;
+    border-radius: 6px;
+  }
+  
+  .react-datepicker__month-container {
+    display: block !important;
+  }
+  
+  .react-datepicker__month {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .react-datepicker__current-month {
+    display: none;
+  }
+
+  .react-datepicker__aria-live {
+    display: none;
+  }
+  
+  .react-datepicker__week {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .react-datepicker__day {
+    color: white;
+    width: 2.2rem;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    margin: 0.15rem;
+    text-align: center;
+  }
+
+  .react-datepicker__day-name {
+    width: 2.2rem;
+    text-align: center;
+    margin: 0.15rem;
+    display: inline-block;
+    color: white;
+  }
+  
+  .react-datepicker__day--selected {
+    background-color: #56ab2f;
+    color: white;
+    border-radius: 50%;
+  }
+  
+  .react-datepicker__day:hover {
+    background-color: #a8e063;
+    color: white;
+    border-radius: 50%;
+  }
+
+  .custom-datepicker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #2f4f4f;
+  }
+  
+  
+  .month-label {
+    flex: 1;
+    text-align: center;
+    min-width: 150px;
+    color: white;
+  }
+  
+  

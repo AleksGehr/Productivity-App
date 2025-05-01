@@ -61,6 +61,16 @@ const HabitPage = () => {
   };
 
   const selectedHabit = habits.find(h => h.id === selectedHabitId);
+  const habitStartDate = selectedHabit?.startDate ? new Date(selectedHabit.startDate) : null;
+  const selectedMonthStart = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
+  const habitStartMonth = habitStartDate
+    ? new Date(habitStartDate.getFullYear(), habitStartDate.getMonth(), 1)
+    : null;
+
+  const disablePrev =
+    habitStartMonth &&
+    selectedMonthStart.getFullYear() === habitStartMonth.getFullYear() &&
+    selectedMonthStart.getMonth() === habitStartMonth.getMonth();
 
   return (
     <div className="page-container">
@@ -102,14 +112,19 @@ const HabitPage = () => {
                   onNext={() =>
                     setSelectedMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
                   }
+                  disablePrev={disablePrev}
                 />
 
-                <HabitCalendar
-                  monthDays={monthDays}
-                  todayString={todayString}
-                  selectedHabit={selectedHabit}
-                  toggleHabitDay={toggleHabitDay}
-                />
+                {habitStartMonth && selectedMonthStart < habitStartMonth ? (
+                  <p className="no-habits-text">This habit didn’t exist in this month.</p>
+                ) : (
+                  <HabitCalendar
+                    monthDays={monthDays}
+                    todayString={todayString}
+                    selectedHabit={selectedHabit}
+                    toggleHabitDay={toggleHabitDay}
+                  />
+                )}
               </div>
             )}
           </div>
