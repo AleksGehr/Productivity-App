@@ -33,6 +33,7 @@
     color: white;
     cursor: pointer;
     transition: color 0.2s ease;
+    display: flex;
   }
   
   .delete-btn-tab:hover {
