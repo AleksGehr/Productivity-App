@@ -48,7 +48,8 @@ export const useTasks = (dateKey) => {
     const generateHabitTasks = async () => {
       if (!userId) return;
 
-      const todayKey = new Date().toISOString().split('T')[0];
+      const localToday = new Date(Date.now() - new Date().getTimezoneOffset() * 60000);
+const todayKey = localToday.toISOString().split('T')[0];
       if (dateKey !== todayKey) return;
 
       const [taskSnap, habitsSnap] = await Promise.all([
