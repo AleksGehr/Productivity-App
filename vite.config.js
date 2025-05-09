@@ -2,8 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-// If your Netlify site is deployed at the root (e.g., https://mytasks.netlify.app), use '/'.
-// If it's in a subdirectory, use that path (e.g., '/mytasks/')
 const basePath = '/';
 
 export default defineConfig({
@@ -12,7 +10,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['leaf.png', 'productive.jpg'], // Add any other assets you use
+      includeAssets: ['leaf.png', 'productive.jpg'],
       manifest: {
         name: 'My Tasks',
         short_name: 'Tasks',
