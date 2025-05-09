@@ -31,6 +31,30 @@ export default defineConfig({
           },
         ],
       },
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.destination === 'document',
+            handler: 'NetworkFirst',
+          },
+          {
+            urlPattern: ({ request }) =>
+              ['style', 'script', 'worker'].includes(request.destination),
+            handler: 'StaleWhileRevalidate',
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'image',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Tage
+              },
+            },
+          },
+        ],
+      },
     }),
   ],
 });
