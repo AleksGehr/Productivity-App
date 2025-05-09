@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaTrashAlt } from 'react-icons/fa';
-import './HabitTabs.css'; // Optional: style the new layout cleanly
+import './HabitTabs.css'; 
 
 const HabitTabs = ({ habits, selectedHabitId, setSelectedHabitId, deleteHabit }) => {
   const sortedHabits = [...habits].sort((a, b) => a.name.localeCompare(b.name));

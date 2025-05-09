@@ -3,7 +3,6 @@ import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-// Mock import.meta.env
 global.importMeta = {
   env: {
     VITE_FIREBASE_API_KEY: 'mock-api-key',
