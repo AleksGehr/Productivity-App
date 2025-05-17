@@ -1,93 +1,93 @@
-# Productivity App
+# Produktivitäts-App
 
-A modern productivity app built with React, Vite, and Firebase. Track your daily tasks, manage habits, and celebrate your achievements with a beautiful, responsive interface.
+Eine moderne Produktivitäts-App, entwickelt mit React, Vite und Firebase. Verwalte deine täglichen Aufgaben, tracke Gewohnheiten und feiere deine Erfolge mit einer schönen, responsiven Oberfläche.
 
-## Features
+## Funktionen
 
-- **Task Management:** Add, complete, edit, move, copy, and delete daily tasks.
-- **Habit Tracker:** Create habits, check off days, and view your progress in a monthly calendar.
-- **Motivational Celebrations:** Get visual celebrations when you complete 70% or more of your tasks for the day.
-- **User Authentication:** Secure login and registration using Firebase Authentication.
-- **Progressive Web App:** Installable and offline-ready with PWA support.
-- **Responsive Design:** Works great on desktop and mobile devices.
+- **Aufgabenverwaltung:** Tägliche Aufgaben hinzufügen, erledigen, bearbeiten, verschieben, kopieren und löschen.
+- **Gewohnheitentracker:** Gewohnheiten anlegen, Tage abhaken und Fortschritte im Monatskalender sehen.
+- **Motivierende Belohnungen:** Visuelle Belohnungen, wenn du 70 % oder mehr deiner Tagesaufgaben erledigst.
+- **Benutzerauthentifizierung:** Sicheres Login und Registrierung mit Firebase Authentication.
+- **Progressive Web App:** Installierbar und offline-fähig dank PWA-Unterstützung.
+- **Responsives Design:** Optimiert für Desktop und mobile Geräte.
 
-## Tech Stack
+## Technologiestack
 
 - [React](https://react.dev/)
 - [Vite](https://vitejs.dev/)
 - [Firebase (Firestore & Auth)](https://firebase.google.com/)
-- [Framer Motion](https://www.framer.com/motion/) (animations)
+- [Framer Motion](https://www.framer.com/motion/) (Animationen)
 - [React Icons](https://react-icons.github.io/react-icons/)
 - [React Datepicker](https://reactdatepicker.com/)
 
-## Getting Started
+## Schnellstart
 
-### Prerequisites
+### Voraussetzungen
 
-- Node.js (v18 or higher)
-- Firebase project (for your own deployment)
+- Node.js (ab Version 18)
+- Eigenes Firebase-Projekt (für eigene Bereitstellung)
 
 ### Installation
 
-1. **Clone the repository:**
+1. **Repository klonen:**
    ```sh
-   git clone https://github.com/your-username/productivity-app.git
+   git clone https://github.com/dein-benutzername/productivity-app.git
    cd productivity-app
    ```
 
-2. **Install dependencies:**
+2. **Abhängigkeiten installieren:**
    ```sh
    npm install
    ```
 
-3. **Set up environment variables:**
+3. **Umgebungsvariablen einrichten:**
 
-   Create a `.env` file in the root directory and add your Firebase config:
+   Erstelle eine `.env`-Datei im Hauptverzeichnis und füge deine Firebase-Konfiguration ein:
    ```
-   VITE_FIREBASE_API_KEY=your-api-key
-   VITE_FIREBASE_AUTH_DOMAIN=your-auth-domain
-   VITE_FIREBASE_PROJECT_ID=your-project-id
-   VITE_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-   VITE_FIREBASE_APP_ID=your-app-id
+   VITE_FIREBASE_API_KEY=dein-api-key
+   VITE_FIREBASE_AUTH_DOMAIN=deine-auth-domain
+   VITE_FIREBASE_PROJECT_ID=dein-project-id
+   VITE_FIREBASE_STORAGE_BUCKET=dein-storage-bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=deine-messaging-sender-id
+   VITE_FIREBASE_APP_ID=deine-app-id
    ```
 
-4. **Start the development server:**
+4. **Entwicklungsserver starten:**
    ```sh
    npm run dev
    ```
 
-   The app will be available at [http://localhost:5173](http://localhost:5173) by default.
+   Die App ist standardmäßig unter [http://localhost:5173](http://localhost:5173) erreichbar.
 
-### Running Tests
+### Tests ausführen
 
 ```sh
 npm test
 ```
 
-## Project Structure
+## Projektstruktur
 
-- `src/pages/` — Main pages (TaskPage, HabitPage, LoginPage)
-- `src/components/` — Reusable UI components
-- `src/hooks/` — Custom React hooks for tasks, habits, and celebrations
-- `src/context/` — React context for tasks
-- `public/` — Static assets (images, icons)
-- `firebase.js` — Firebase configuration
+- `src/pages/` — Hauptseiten (TaskPage, HabitPage, LoginPage)
+- `src/components/` — Wiederverwendbare UI-Komponenten
+- `src/hooks/` — Eigene React Hooks für Aufgaben, Gewohnheiten und Belohnungen
+- `src/context/` — React Context für Aufgaben
+- `public/` — Statische Assets (Bilder, Icons)
+- `firebase.js` — Firebase-Konfiguration
 
 ## Deployment
 
-Build the app for production:
+Für die Produktion bauen:
 
 ```sh
 npm run build
 ```
 
-You can deploy the `dist/` folder to any static hosting service (e.g., Vercel, Netlify, Firebase Hosting).
+Das `dist/`-Verzeichnis kann auf jedem statischen Hosting-Dienst (z.B. Vercel, Netlify, Firebase Hosting) bereitgestellt werden.
 
-## License
+## Lizenz
 
 MIT
 
 ---
 
-Made with ❤️ for productivity!
+Mit ❤️ für Produktivität entwickelt!
