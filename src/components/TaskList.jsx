@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoSettingsSharp } from "react-icons/io5";
-import './TaskList.css';
 
 const TaskList = ({ tasks, onToggle, onDelete, dateKey, onMove, onCopy, onOpenSettings }) => {
   const sortedTasks = [
