@@ -1,6 +1,7 @@
 # Produktivitäts-App
 
-Eine moderne Produktivitäts-App, entwickelt mit React, Vite und Firebase. Verwalte deine täglichen Aufgaben, tracke Gewohnheiten und feiere deine Erfolge mit einer schönen, responsiven Oberfläche.
+Eine moderne Produktivitäts-App, entwickelt mit React, Vite und Firebase. Verwalte deine täglichen Aufgaben, tracke Gewohnheiten und feiere deine Erfolge mit einer schönen, responsiven Oberfläche:
+https://boostproductivityapp.netlify.app/
 
 ## Funktionen
 
